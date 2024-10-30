@@ -5,6 +5,7 @@ import {
   InteractionResponseType,
   verifyKeyMiddleware,
 } from 'discord-interactions';
+import Discord from 'discord.js';
 
 // Create an express app
 const app = express();
@@ -56,3 +57,29 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 app.listen(PORT, () => {
   console.log('Listening on port', PORT);
 });
+
+
+async function fetchMessages() {
+  const client = new Discord.Client();
+
+  client.on('ready', () => {
+    console.log(`Logged in as ${client.user.tag}`);
+  });
+
+  client.on('message', async (message) => {
+    if (message.content === '!fetch-messages') {
+      const channel = await client.channels.fetch('1300822795395137578');
+
+      // Fetch messages from the channel
+      const messages = await channel.messages.fetch({ limit: 100 }); // Fetching 100 most recent messages
+
+      // Print the content of each message
+      messages.forEach((message) => {
+        console.log(`${message.author.username}: ${message.content}`);
+      });
+    }
+  });
+
+  // Log in the bot
+  client.login(process.env.DISCORD_TOKEN);
+}
