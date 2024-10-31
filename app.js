@@ -1,12 +1,8 @@
 import 'dotenv/config';
 import express from 'express';
-import {
-    InteractionType,
-    InteractionResponseType,
-    verifyKeyMiddleware,
-} from 'discord-interactions';
+import {InteractionResponseType, InteractionType, verifyKeyMiddleware,} from 'discord-interactions';
 
-import {Client, GatewayIntentBits, ChannelType} from 'discord.js';
+import {generatePresenceReport} from './presence-report/presence-report.js';
 
 // Create an express app
 const app = express();
@@ -38,11 +34,12 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         // "test" command
         if (name === 'test') {
             // Send a message into the channel where command was triggered from
+            const result = await generatePresenceReport();
             return res.send({
                 type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                 data: {
                     // Fetches a random emoji to send from a helper function
-                    content: 'Ta gueule!',
+                    content: '' + result,
                 },
             });
         }
@@ -55,35 +52,6 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     return res.status(400).json({error: 'unknown interaction type'});
 });
 
-app.get('/prout', (req, res) => {
-    fetchMessages().then();
-    res.send('Hello from /prout!');
-});
-
 app.listen(PORT, () => {
     console.log('Listening on port', PORT);
 });
-
-async function fetchMessages() {
-    const client = new Client({intents: [GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent]});
-
-    client.on('ready', () => {
-        console.log(`Logged in as ${client.user.tag}!`);
-        getMessages(client, '1300822795395137578');
-    });
-
-    await client.login(process.env.DISCORD_TOKEN);
-}
-
-function getMessages(client, channelId) {
-    client.channels.fetch(channelId).then(channel => {
-        if (channel.type === ChannelType.GuildText) {
-            channel.messages.fetch({limit: 100, cache: false})
-                .then(messages => {
-                    messages.forEach(message => {
-                        console.log(message.cleanContent);
-                    });
-                });
-        }
-    });
-}
