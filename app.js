@@ -33,6 +33,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 
         // "test" command
         if (name === 'test') {
+            console.log(data);
             // Send a message into the channel where command was triggered from
             const result = await generatePresenceReport();
             return res.send({
@@ -54,6 +55,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 
 app.get('/', (req, res) => {
     res.send("I'm alive!!");
+    generatePresenceReport().then(result => console.log(result));
 });
 
 app.listen(PORT, () => {

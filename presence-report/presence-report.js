@@ -1,5 +1,12 @@
 import {ChannelType, Client, GatewayIntentBits, MessageType} from "discord.js";
-import {CHANNEL_ID, INSCRIPTION_LINE_REGEX, LINE_SEPARATOR, RAID_HELPER_USERNAME, WOW_CLASSES} from "../constants.js";
+import {
+    CHANNEL_ID,
+    DATE_LINE_REGEX,
+    INSCRIPTION_LINE_REGEX,
+    LINE_SEPARATOR,
+    RAID_HELPER_USERNAME,
+    WOW_CLASSES
+} from "../constants.js";
 
 
 export function generatePresenceReport() {
@@ -15,7 +22,7 @@ function processMessages(client, channelId) {
     return client.channels.fetch(channelId)
         .then(channel => channel.messages.fetch({limit: 100, cache: false}))
         .then(messages => {
-            const result = {inscriptions: []};
+            const result = {};
             messages.forEach(message => {
                 if (message.type === MessageType.Default && message.author.username === RAID_HELPER_USERNAME) {
                     processRaidHelperMessage(result, message);
@@ -27,15 +34,28 @@ function processMessages(client, channelId) {
 
 function processRaidHelperMessage(result, message) {
     const fields = message.embeds[0].fields;
+    const eventDate = getEventDate(fields);
     Object.keys(WOW_CLASSES).forEach(wowClass => {
         const classField = fields.filter(field => field.value.startsWith(`<:${wowClass}`));
         if (classField.length === 1) {
-            processClass(result, wowClass, classField[0].value)
+            processClass(result, eventDate, wowClass, classField[0].value)
         }
     });
 }
 
-function processClass(result, wowClass, data) {
+function getEventDate(fields) {
+    const dateField = fields.find(field => field.value.startsWith('<:LeaderX'));
+    if (dateField) {
+        const match = dateField.value.match(DATE_LINE_REGEX)
+        if (match && match[1]) {
+            const eventDate = new Date( match[1] * 1000);
+            return eventDate.toISOString();
+        }
+    }
+    return undefined;
+}
+
+function processClass(result, eventDate, wowClass, data) {
     const specializations = WOW_CLASSES[wowClass];
     const rows = data.split(LINE_SEPARATOR);
     rows.forEach(row => {
@@ -43,7 +63,11 @@ function processClass(result, wowClass, data) {
         if (match && specializations.includes(match[1])) {
             const specialization = match[1];
             const name = match[2];
-            result.inscriptions.push({wowClass, specialization, name});
+            if (result[name]) {
+                result[name].push({eventDate, wowClass, specialization});
+            } else {
+                result[name] = [{eventDate, wowClass, specialization}];
+            }
         }
     });
 }

@@ -3,6 +3,7 @@ export const LINE_SEPARATOR = '\n';
 export const CHANNEL_ID = '1300822795395137578';
 export const RAID_HELPER_USERNAME = 'Raid-Helper';
 export const INSCRIPTION_LINE_REGEX = /<:(\w+):\d+>.*?\*\*([\w\-\/]+)\*\*/;
+export const DATE_LINE_REGEX = /<t:(\d+):D>/;
 
 export const WOW_CLASSES = {
     "DK": [
