@@ -4,6 +4,7 @@ import {InteractionResponseType, InteractionType, verifyKeyMiddleware,} from 'di
 
 import {generatePresenceReport} from './presence-report/presence-report.js';
 import {PRESENCE_COMMAND} from "./commands.js";
+import {CHANNEL_OPTION_NAME} from "./constants.js";
 
 // Create an express app
 const app = express();
@@ -30,20 +31,15 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
      * See https://discord.com/developers/docs/interactions/application-commands#slash-commands
      */
     if (type === InteractionType.APPLICATION_COMMAND) {
-        const {name} = data;
-
-        // "test" command
-        if (name === PRESENCE_COMMAND.name) {
-            console.log(data);
-            // Send a message into the channel where command was triggered from
-            const result = await generatePresenceReport();
-            return res.send({
-                type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-                data: {
-                    // Fetches a random emoji to send from a helper function
-                    content: JSON.stringify(result, null, 2),
-                },
-            });
+        if (data.name === PRESENCE_COMMAND.name) {
+            const channelOption = data.options.find(option => option.name === CHANNEL_OPTION_NAME);
+            if (channelOption && channelOption.value) {
+                const result = await generatePresenceReport(channelOption.value);
+                return res.send({
+                    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                    data: {content: JSON.stringify(result, null, 2)}
+                });
+            }
         }
 
         console.error(`unknown command: ${name}`);
@@ -56,7 +52,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 
 app.get('/', (req, res) => {
     res.send("I'm alive!!");
-    generatePresenceReport().then(result => console.log(result));
+    generatePresenceReport('1300822795395137578').then(result => console.log(result));
 });
 
 app.listen(PORT, () => {

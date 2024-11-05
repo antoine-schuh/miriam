@@ -13,7 +13,7 @@ export const PRESENCE_COMMAND = {
       name: 'channel',
       description: 'The channel to generate the presence report for',
       type: 7, // Type 7 represents a channel option
-      required: false
+      required: true
     },
   ]
 };

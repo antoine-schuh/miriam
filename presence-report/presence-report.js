@@ -9,13 +9,13 @@ import {
 } from "../constants.js";
 
 
-export function generatePresenceReport() {
+export function generatePresenceReport(channelId) {
     const client = new Client({intents: [GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent]});
 
     client.on('ready', () => console.log(`Logged in as ${client.user.tag}!`));
 
     return client.login(process.env.DISCORD_TOKEN)
-        .then(() => processMessages(client, CHANNEL_ID));
+        .then(() => processMessages(client, channelId));
 }
 
 function processMessages(client, channelId) {
