@@ -1,6 +1,5 @@
 import {ChannelType, Client, GatewayIntentBits, MessageType} from "discord.js";
 import {
-    CHANNEL_ID,
     DATE_LINE_REGEX,
     INSCRIPTION_LINE_REGEX,
     LINE_SEPARATOR,
