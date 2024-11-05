@@ -32,8 +32,10 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
      */
     if (type === InteractionType.APPLICATION_COMMAND) {
         if (data.name === PRESENCE_COMMAND.name) {
+            console.log("Data", data);
             const channelOption = data.options.find(option => option.name === CHANNEL_OPTION_NAME);
             if (channelOption && channelOption.value) {
+                console.log("Options", channelOption);
                 const result = await generatePresenceReport(channelOption.value);
                 return res.send({
                     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
