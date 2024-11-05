@@ -3,6 +3,7 @@ import express from 'express';
 import {InteractionResponseType, InteractionType, verifyKeyMiddleware,} from 'discord-interactions';
 
 import {generatePresenceReport} from './presence-report/presence-report.js';
+import {PRESENCE_COMMAND} from "./commands.js";
 
 // Create an express app
 const app = express();
@@ -32,7 +33,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         const {name} = data;
 
         // "test" command
-        if (name === 'test') {
+        if (name === PRESENCE_COMMAND.name) {
             console.log(data);
             // Send a message into the channel where command was triggered from
             const result = await generatePresenceReport();

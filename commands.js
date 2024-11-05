@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { InstallGlobalCommands } from './utils.js';
 
 // Simple test command
-const PRESENCE_COMMAND = {
+export const PRESENCE_COMMAND = {
   name: 'presence',
   description: 'Command to generate a presence report',
   type: 1,
