@@ -37,6 +37,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
             if (channelOption && channelOption.value) {
                 console.log("Options", channelOption);
                 const result = await generatePresenceReport(channelOption.value);
+                console.log("Result", result);
                 return res.send({
                     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                     data: {content: JSON.stringify(result, null, 2)}
